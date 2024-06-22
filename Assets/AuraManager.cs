@@ -336,7 +336,24 @@ public class AuraManager : MonoBehaviour
 
     public void OnGenerateImageSuccess(Texture2D image)
     {
+        // Convert Texture2D to PNG byte array
+        byte[] pngData = image.EncodeToPNG();
 
+        // Check if pngData is not null
+        if (pngData != null)
+        {
+            // Get the path to the desktop
+            string desktopPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+            string filePath = Path.Combine(desktopPath, "AuraGenerated.png");
+
+            // Write the PNG byte array to a file
+            File.WriteAllBytes(filePath, pngData);
+            SpawnAuraMessage($"Image saved to {filePath}!");
+        }
+        else
+        {
+            SpawnAuraMessage("Failed to encode byte[] to PNG. Please try again later!");
+        }
     }
     public void GenerateImage()
     {
