@@ -360,6 +360,34 @@ public class AuraManager : MonoBehaviour
         HuggingFaceAPI.TextToImage(currentChatString, OnGenerateImageSuccess, OnAuraConversationFailure);
     }
 
+    public void OnJustCreateNewVenv()
+    {
+        bool alsoWantsVSCode = currentChatString.ToLower().Contains("visual") || currentChatString.ToLower().Contains("studio") || currentChatString.ToLower().Contains("vscode");
+        if (alsoWantsVSCode)
+        {
+            OpenVSCodeAndNewDirectory();
+            return;
+        }
+        SpawnAuraMessage("Creating a new virtual environment...");
+        string projectName = ExtractQuotedstring();
+        if (projectName != null)
+        {
+            string projectPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), projectName);
+
+            // Create the virtual environment
+            CreateVirtualEnvironment(projectPath);
+
+            // Open Visual Studio Code with the new project folder
+            //OpenVisualStudioCode(projectPath);
+
+          
+        }
+        else
+        {
+            SpawnAuraMessage("Im sorry. I could not find the name of your desired virtual environment in your query. Please specify the name of your venv.");
+        }
+    }
+
     public void OnEditVenvPath()
     {
         hasCreatedVEnv = !string.IsNullOrEmpty(VenvPathInputfield.text);
@@ -404,20 +432,39 @@ public class AuraManager : MonoBehaviour
     public void OpenVSCodeAndNewDirectory()
     {
         string projectName = ExtractQuotedstring();
+
+        bool wantsToCreatenewVenv = currentChatString.ToLower().Contains("virtual") || currentChatString.ToLower().Contains("environment") || currentChatString.ToLower().Contains("venv");
+
         if (projectName != null)
         {
             string projectPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), projectName);
 
             // Create the virtual environment
-            CreateVirtualEnvironment(projectPath);
 
-            // Open Visual Studio Code with the new project folder
-            OpenVisualStudioCode(projectPath);
+            if (wantsToCreatenewVenv)
+            {
+                SpawnAuraMessage("Creating a new virtual environment...");
+                CreateVirtualEnvironment(projectPath);
+
+                // Open Visual Studio Code with the new project folder
+                OpenVisualStudioCode(projectPath);
+            }
+            else
+            {
+                SpawnAuraMessage("Opening visual studio code...");
+                OpenVisualStudioCode(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop).ToString());
+            }
+        }
+        else if (!wantsToCreatenewVenv)
+        {
+            SpawnAuraMessage("Opening visual studio code...");
+            OpenVisualStudioCode(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop).ToString());
         }
         else
         {
             SpawnAuraMessage("Im sorry. I could not find the name of your desired virtual environment in your query. Please specify the name of your venv.");
         }
+        
     }
 
     public void onSentenceSimilaritySuccess(float[] f)
