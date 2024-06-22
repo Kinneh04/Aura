@@ -2562,18 +2562,6 @@ MonoBehaviour:
     2*np.pi)\r\nax.set_ylim(-1, 1)\r\nax.grid(True)\r\n\r\n# Create animation\r\nani
     = animation.FuncAnimation(fig, animate, frames=num_frames, interval=1000/fps,
     blit=True)\r\n\r\n# Show animation\r\nplt.show()\r\n"
-  - "import matplotlib.pyplot as plt\r\nimport pandas as pd\r\nimport pandas_datareader
-    as pdr  # This is to fetch data from Yahoo Finance\r\n\r\n# Define the ticker
-    symbol (Apple Inc. in this case)\r\nticker = 'AAPL'\r\n\r\n# Define the start
-    and end dates for fetching the data\r\nstart_date = '2020-01-01'\r\nend_date
-    = '2023-01-01'\r\n\r\n# Fetch the historical data from Yahoo Finance\r\ntry:\r\n   
-    df = pdr.DataReader(ticker, 'yahoo', start_date, end_date)\r\nexcept Exception
-    as e:\r\n    print(\"Error fetching data:\", e)\r\n    exit()\r\n\r\n# Plotting
-    the closing prices\r\nplt.figure(figsize=(12, 6))\r\nplt.plot(df.index, df['Close'],
-    label='Closing Price', color='blue', marker='o', linestyle='-')\r\n\r\n# Adding
-    labels and title\r\nplt.title(f'{ticker} Closing Prices')\r\nplt.xlabel('Date')\r\nplt.ylabel('Price
-    ($)')\r\nplt.xticks(rotation=45)\r\nplt.grid(True)\r\nplt.legend()\r\n\r\n# Show
-    plot\r\nplt.tight_layout()\r\nplt.show()\r\n"
 --- !u!1 &664409514
 GameObject:
   m_ObjectHideFlags: 0

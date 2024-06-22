@@ -61,6 +61,7 @@ public class AuraManager : MonoBehaviour
 
     [TextArea(15,15)]
     public List<string> SampleCodes;
+    public Toggle CanDelete;
 
     public void OnChangeContext()
     {
@@ -351,11 +352,11 @@ public class AuraManager : MonoBehaviour
     public IEnumerator WriteDelayed(string s, string pythonScriptPath)
     {
         SpawnAuraMessage("Writing your sample python code in main.py!");
-        foreach (char c in s)
+        using (StreamWriter writer = new StreamWriter(pythonScriptPath))
         {
-            using (StreamWriter writer = new StreamWriter(pythonScriptPath))
+            foreach (char c  in s)
             {
-                    writer.Write(c);
+                writer.Write(c);
             }
             yield return new WaitForSeconds(0.04f);
         }
@@ -372,7 +373,7 @@ public class AuraManager : MonoBehaviour
         try
         {
             // Create a new Python script file
-            string pythonScriptPath = Path.Combine(projectPath , "main.py");
+            string pythonScriptPath = Path.Combine(projectPath, "main.py");
 
             StartCoroutine(WriteDelayed(SampleCodes[UnityEngine.Random.Range(0, SampleCodes.Count)], pythonScriptPath));
 
@@ -468,7 +469,7 @@ public class AuraManager : MonoBehaviour
         int highestIndex = -1; float highest = 0;
         for (int i = 0; i < MatchingIndex.Length; i++)
         {
-            if (MatchingIndex[i] > 0.44f && MatchingIndex[i] > highest)
+            if (MatchingIndex[i] > 0.42f && MatchingIndex[i] > highest)
             {
                 highest = MatchingIndex[i];
                 highestIndex = i;
@@ -477,6 +478,45 @@ public class AuraManager : MonoBehaviour
         return highestIndex;
     }
 
+    public void OnDeleteVirtualEnv()
+    {
+        if(CanDelete)
+
+        DeleteVirtualEnvironment(VEnvPath);
+        
+        else
+        {
+            SpawnAuraMessage("Aura is not allowed to delete virtual environments! Please enable it in the settings tab");
+        }
+    }
+    public void DeleteVirtualEnvironment(string projectPath)
+    {
+        try
+        {
+            string venvPath = Path.Combine(projectPath, "venv");
+
+            if (Directory.Exists(venvPath))
+            {
+                // Deactivate the virtual environment
+                string deactivateCommand = Path.Combine(venvPath, "Scripts", "deactivate");
+                Process.Start(deactivateCommand);
+
+                // Delete the virtual environment directory
+                Directory.Delete(venvPath, true);
+
+                SpawnAuraMessage("Virtual environment deleted successfully. Venv path has been cleared in settings!");
+                OnClearVenvPath();
+            }
+            else
+            {
+                SpawnAuraMessage("Virtual environment does not exist.");
+            }
+        }
+        catch (System.Exception e)
+        {
+            SpawnAuraMessage("Error deleting virtual environment: " + e.Message);
+        }
+    }
     public void PassThroughSSModel(string s)
     {
        
