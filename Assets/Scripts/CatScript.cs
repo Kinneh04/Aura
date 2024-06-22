@@ -72,7 +72,7 @@ public class CatScript : MonoBehaviour
         GO.transform.position = new Vector3(0, 0, 0);
     }
 
-    public void GoToSleepP()
+    public void GoToSleep()
     {
         isSleeping = true;
         CatAnimator.SetBool("isSleeping", true);
@@ -99,6 +99,10 @@ public class CatScript : MonoBehaviour
         {
             WakeUp();
         }
+        else if (!isSleeping && spoken.Contains("sleep"))
+        {
+            GoToSleep();
+        }
         else if (spoken.Contains("image") && spoken.Contains("generate") || spoken.Contains("image") || spoken.Contains("picture"))
         {
             HuggingFaceAPI.TextToImage(spoken, response =>
@@ -113,9 +117,9 @@ public class CatScript : MonoBehaviour
                 ProcessingSpeech.SetActive(false);
             });
         }
-        else
+        else if (!isSleeping)
         {
-            HuggingFace.API.Conversation conversation = new HuggingFace.API.Conversation();
+            HuggingFace.API.Conversation conversation = new Conversation();
             conversation.AddUserInput(Catcontext);
             conversation.AddGeneratedResponse("Ok Meow. My name is muffin, and I am a cat, and you are my new owner");
             HuggingFaceAPI.Conversation(spoken, response =>
@@ -124,10 +128,10 @@ public class CatScript : MonoBehaviour
                 ProcessingSpeech.SetActive(false);
             }, error =>
             {
-                PopUpSpeech("Uh, what?");
                 ProcessingSpeech.SetActive(false);
             }, context: conversation);
         }
+        
     }
 
 
@@ -158,7 +162,7 @@ public class CatScript : MonoBehaviour
        // PopUpSpeech("Meow");
         speechtimer = maxText;
 
-        GoToSleepP();
+        GoToSleep();
     }
     private void StartDrag()
     {
@@ -228,12 +232,9 @@ public class CatScript : MonoBehaviour
             }
         }
 
-        if (idleTimer > 9f && !isSleeping)
+        if (idleTimer > 25f && !isSleeping)
         {
-            GoToSleepP();
-        }
-        else if (isSleeping)
-        {
+            GoToSleep();
         }
 
         //if (Input.GetMouseButtonDown(1))

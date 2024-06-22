@@ -1362,6 +1362,10 @@ MonoBehaviour:
   GeneratedImage: {fileID: 0}
   TextureOutputImage: {fileID: 7262142569267630056, guid: e8f94945af9e30848bd3b4a05974b01b, type: 3}
   Ccanvas: {fileID: 719823748}
+  Catcontext: Your name is 'Muffin'. You are a short, white fluffy cat, and you are
+    pretty smart. You can converse about anything. You are also lazy, replying in
+    short but sweet sentences, and when asked questions about your day, you will
+    usually respons with lazing around, or other usual cat things.
 --- !u!224 &947078215
 RectTransform:
   m_ObjectHideFlags: 0

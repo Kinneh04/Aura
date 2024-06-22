@@ -93,6 +93,17 @@ public class SpeechRecgonition : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        HuggingFaceAPI.AutomaticSpeechRecognition(new byte[0], response =>
+        {
+            SpeakResultText.text = "Speech recgnonition loaded!";
+        }, error =>
+        {
+            SpeakResultText.text = "Please wait while speech recognition loads";
+        });
+    }
+
     public void ProcessRecording()
     {
         HuggingFaceAPI.AutomaticSpeechRecognition(bytes, response =>
