@@ -4,6 +4,8 @@ using UnityEngine;
 using HuggingFace.API;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.Events;
+using System.Text.RegularExpressions;
 public class AuraManager : MonoBehaviour
 {
 
@@ -36,7 +38,18 @@ public class AuraManager : MonoBehaviour
     public List<GameObject> SpawnedChatBubbles = new();
 
     public string[] SentenceSimilarities;
+    public UnityEvent[] events;
     public float[] MatchingIndex;
+
+    public string currentChatString;
+
+    [Header("Events")]
+    public string spotifyExtension = "https://open.spotify.com/search/";
+    [TextArea(2,2)]
+    public string OpenMusicResponse, OpenYoutubeResponse;
+
+    public List<string> MusicGenres;
+    public string youtubeExtension = "https://www.youtube.com/results?search_query=";
 
     public void OnChangeContext()
     {
@@ -87,15 +100,8 @@ public class AuraManager : MonoBehaviour
 
     public void ParseString(string s)
     {
-        if (s.Contains("HI"))
-        {
 
-        }
-        else
-        {
             PassThroughSSModel(s);
-           // SendStringToModel(s);
-        }
     }
     public string ExtractStringAfterSeparator(string s)
     {
@@ -153,14 +159,101 @@ public class AuraManager : MonoBehaviour
       
     }
 
-    public void onSentenceSimilaritySuccess(float[] f)
+    public string returnMatchedGenre()
+    {
+     
+        foreach (string s in MusicGenres)
+        {
+            if (currentChatString.Contains(s))
+            {
+                return s;
+            }
+        }
+        return "random";
+    }
+
+    public string returnQuotedstring()
+    {
+        // Regular expression to find text within quotes
+        Match match = Regex.Match(currentChatString, "\"([^\"]*)\"");
+        if (match.Success)
+        {
+            return match.Groups[1].Value;
+        }
+        return null; // No quoted text found
+    }
+
+    public void PlayMusic()
+    {
+        string s = returnMatchedGenre();
+        Application.OpenURL(spotifyExtension + s + "/playlists");
+        SpawnAuraMessage(OpenMusicResponse + s);
+    }
+
+    public void PlayVideo()
+    {
+        string s = returnQuotedstring();
+        Application.OpenURL(youtubeExtension + s);
+        SpawnAuraMessage(OpenYoutubeResponse + s);
+    }
+
+    public void CreateNewDocument()
     {
 
+    }
+
+    public void CreateNewFolder()
+    {
+
+    }
+
+    public void GenerateImage()
+    {
+
+    }
+
+    public void SummarizeDocument()
+    {
+
+    }
+
+    public void FindLinkToOpen()
+    {
+
+    }
+
+    public void onSentenceSimilaritySuccess(float[] f)
+    {
+        MatchingIndex = f;
+        int res = returnIndexThatMeetsRequirements();
+        if (res == -1)
+        {
+            SendStringToModel(currentChatString);
+        }
+        else
+        {
+            events[res].Invoke();
+        }
+    }
+
+    public int returnIndexThatMeetsRequirements()
+    {
+        int highestIndex = -1; float highest = 0;
+        for (int i = 0; i < MatchingIndex.Length; i++)
+        {
+            if (MatchingIndex[i] > 0.6f && MatchingIndex[i] > highest)
+            {
+                highest = MatchingIndex[i];
+                highestIndex = i;
+            }
+        }
+        return highestIndex;
     }
 
     public void PassThroughSSModel(string s)
     {
         HuggingFaceAPI.SentenceSimilarity(s, onSentenceSimilaritySuccess, OnAuraConversationFailure, SentenceSimilarities);
+        currentChatString = s.ToLower();
     }
 
     public void SpawnAuraMessage(string s)
