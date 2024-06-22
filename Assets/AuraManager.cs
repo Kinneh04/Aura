@@ -93,7 +93,7 @@ public class AuraManager : MonoBehaviour
         }
         else
         {
-            PassThroughSSModel();
+            PassThroughSSModel(s);
            // SendStringToModel(s);
         }
     }

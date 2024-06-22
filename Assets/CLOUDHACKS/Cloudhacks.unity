@@ -2065,6 +2065,16 @@ MonoBehaviour:
   AuraPastMessages: []
   ExtraContextInputfield: {fileID: 1095088374}
   SavedContextSuccess: {fileID: 401328354}
+  SpawnedChatBubbles: []
+  SentenceSimilarities:
+  - Open Link
+  - Open Youtube
+  - Open Spotify
+  - Create Document
+  - Create Folder
+  - Generate Image
+  - Summarize document
+  MatchingIndex: []
 --- !u!1 &664409514
 GameObject:
   m_ObjectHideFlags: 0
