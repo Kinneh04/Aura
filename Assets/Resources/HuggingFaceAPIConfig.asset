@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: HuggingFaceAPIConfig
   m_EditorClassIdentifier: 
   _apiKey: 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
-  _useBackupEndpoints: 0
+  _useBackupEndpoints: 1
   _waitForModel: 1
   _maxTimeout: 35
   _taskEndpoints:
@@ -30,8 +30,10 @@ MonoBehaviour:
   - taskName: TextClassification
     endpoint: https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english
   - taskName: TextGeneration
-    endpoint: https://api-inference.huggingface.co/models/gpt2
+    endpoint: https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2
   - taskName: TextToImage
     endpoint: https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5
   - taskName: Translation
     endpoint: https://api-inference.huggingface.co/models/t5-base
+  - taskName: ZeroShotTextClassification
+    endpoint: https://api-inference.huggingface.co/models/facebook/bart-large-mnli

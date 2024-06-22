@@ -15,6 +15,7 @@ public class MessagePrefab : MonoBehaviour
 
     IEnumerator LoadTextCoroutine(string t)
     {
+        txt.text = "";
         foreach (char c in t)
         {
             txt.text += c.ToString();

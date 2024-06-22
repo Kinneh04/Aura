@@ -94,7 +94,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   txt: {fileID: 6808391605165957059}
-  typingSpeed: 0.02
+  typingSpeed: 0.01
 --- !u!1 &6808391605165957062
 GameObject:
   m_ObjectHideFlags: 0
