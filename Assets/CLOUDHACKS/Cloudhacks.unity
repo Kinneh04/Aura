@@ -2391,8 +2391,8 @@ MonoBehaviour:
   - install a library onto virtual environment
   - Create Sample python Project
   - Package done project to executable exe file
+  - Delete Environment
   - Generate Image
-  - Summarize document
   events:
   - m_PersistentCalls:
       m_Calls:
@@ -2506,6 +2506,34 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 575062278}
+        m_TargetAssemblyTypeName: AuraManager, Assembly-CSharp
+        m_MethodName: OnDeleteVirtualEnv
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 575062278}
+        m_TargetAssemblyTypeName: AuraManager, Assembly-CSharp
+        m_MethodName: OnDeleteVirtualEnv
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   MatchingIndex: []
   currentChatString: 
   spotifyExtension: https://open.spotify.com/search/
@@ -2562,6 +2590,7 @@ MonoBehaviour:
     2*np.pi)\r\nax.set_ylim(-1, 1)\r\nax.grid(True)\r\n\r\n# Create animation\r\nani
     = animation.FuncAnimation(fig, animate, frames=num_frames, interval=1000/fps,
     blit=True)\r\n\r\n# Show animation\r\nplt.show()\r\n"
+  CanDelete: {fileID: 1270234050}
 --- !u!1 &664409514
 GameObject:
   m_ObjectHideFlags: 0

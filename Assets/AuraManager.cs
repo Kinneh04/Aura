@@ -429,10 +429,10 @@ public class AuraManager : MonoBehaviour
         }
         try
         {
-            string activatePath = Path.Combine(projectPath, "venv", "Scripts", "activate");
+            string activatePath = Path.Combine(projectPath, "venv", "Scripts");
             string installPyInstallerCommand = $"\"{activatePath}\" && pip install pyinstaller";
-            string pyInstallerCommand = $"\"{activatePath}\" && pyinstaller --onefile main.py"; // Assuming main.py is the entry point
-
+            string pyInstallerCommand = $"CD {activatePath} && pyinstaller --onefile {projectPath}/main.py"; // Assuming main.py is the entry point
+            UnityEngine.Debug.Log(pyInstallerCommand);
             // Install pyinstaller
             ProcessStartInfo installStartInfo = new ProcessStartInfo("cmd.exe", "/c " + installPyInstallerCommand)
             {
@@ -456,7 +456,7 @@ public class AuraManager : MonoBehaviour
             using (Process packageProcess = Process.Start(packageStartInfo))
             {
                 packageProcess.WaitForExit();
-                UnityEngine.Debug.Log("Project packaged successfully.");
+                SpawnAuraMessage("Project packaged successfully. Package is in " + activatePath);
             }
         }
         catch (System.Exception e)
