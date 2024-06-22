@@ -29,6 +29,43 @@ public class AuraManager : MonoBehaviour
 
     public List<string> YourPastMessages;
     public List<string> AuraPastMessages;
+
+    public TMP_InputField ExtraContextInputfield;
+    public GameObject SavedContextSuccess;
+
+    public List<GameObject> SpawnedChatBubbles = new();
+
+    public string[] SentenceSimilarities;
+    public float[] MatchingIndex;
+
+    public void OnChangeContext()
+    {
+        SavedContextSuccess.SetActive(false);
+    }
+
+    public void OnHitClearExtraContext()
+    {
+        ExtraContext = "";
+        ExtraContextInputfield.text = "";
+        SavedContextSuccess.SetActive(false);
+    }
+
+    public void OnHitNewChat()
+    {
+        foreach (GameObject GO in SpawnedChatBubbles)
+        {
+            Destroy(GO);
+        }
+        SpawnedChatBubbles.Clear();
+        YourPastMessages.Clear();
+        AuraPastMessages.Clear();
+    }
+
+    public void OnSaveExtraContext()
+    {
+        ExtraContext = ExtraContextInputfield.text;
+        SavedContextSuccess.SetActive(true);
+    }
     private void Start()
     {
         SpawnAuraMessage(AuraIntroMessage);
@@ -56,7 +93,8 @@ public class AuraManager : MonoBehaviour
         }
         else
         {
-            SendStringToModel(s);
+            PassThroughSSModel();
+           // SendStringToModel(s);
         }
     }
     public string ExtractStringAfterSeparator(string s)
@@ -80,7 +118,7 @@ public class AuraManager : MonoBehaviour
     }
     public void SendStringToModel(string s)
     {
-        string history = "Chat has no history.";
+        string history = "There is currently no chat history between you and user.";
         if (YourPastMessages.Count > 0)
         {
             history = "Chat History: ";
@@ -110,7 +148,19 @@ public class AuraManager : MonoBehaviour
         YourInputfield.text = "";
         SendButton.interactable = false;
         AuraIsThinkingGO.SetActive(true);
+
+        SpawnedChatBubbles.Add(GO);
       
+    }
+
+    public void onSentenceSimilaritySuccess(float[] f)
+    {
+
+    }
+
+    public void PassThroughSSModel(string s)
+    {
+        HuggingFaceAPI.SentenceSimilarity(s, onSentenceSimilaritySuccess, OnAuraConversationFailure, SentenceSimilarities);
     }
 
     public void SpawnAuraMessage(string s)
@@ -123,5 +173,7 @@ public class AuraManager : MonoBehaviour
       //  ParseString(YourInputfield.text);
         SendButton.interactable = true;
         AuraIsThinkingGO.SetActive(false);
+
+        SpawnedChatBubbles.Add(GO);
     }
 }
