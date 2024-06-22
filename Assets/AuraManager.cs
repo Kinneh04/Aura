@@ -8,6 +8,8 @@ using UnityEngine.Events;
 using System.Text.RegularExpressions;
 using System.Diagnostics;
 using System.IO;
+using System;
+
 public class AuraManager : MonoBehaviour
 {
 
@@ -52,6 +54,13 @@ public class AuraManager : MonoBehaviour
 
     public List<string> MusicGenres;
     public string youtubeExtension = "https://www.youtube.com/results?search_query=";
+
+    public bool hasCreatedVEnv;
+    public string VEnvPath;
+    public TMP_InputField VenvPathInputfield;
+
+    [TextArea(15,15)]
+    public List<string> SampleCodes;
 
     public void OnChangeContext()
     {
@@ -115,7 +124,8 @@ public class AuraManager : MonoBehaviour
         {
             // Extract and return the substring after the separator
             // Adding the length of the separator to skip over it
-            return s.Substring(separatorIndex + Seperator.Length);
+            return ExtractStringAfterSeparator(s.Substring(separatorIndex + Seperator.Length));
+          //  return s.Substring(separatorIndex + Seperator.Length);
         }
         else
         {
@@ -123,6 +133,40 @@ public class AuraManager : MonoBehaviour
             // depending on your needs. Here, returning an empty string as an example.
             return string.Empty;
         }
+    }
+    public void InstallLibrary(string projectPath, string libraryName)
+    {
+        try
+        {
+            string activatePath = Path.Combine(projectPath, "venv", "Scripts", "activate");
+            string command = $"\"{activatePath}\" && pip install {libraryName}";
+            ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe", "/c " + command)
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using (Process process = Process.Start(startInfo))
+            {
+                process.WaitForExit();
+               SpawnAuraMessage($"{libraryName} installed successfully.");
+            }
+        }
+        catch (System.Exception e)
+        {
+            UnityEngine.Debug.Log($"Error installing {libraryName}: " + e.Message);
+        }
+    }
+    public void InstallLibraryOntoVenv()
+    {
+        if (!hasCreatedVEnv)
+        {
+            SpawnAuraMessage("It seems we have not created a virtual environment this session. Please specify where you would like me to create a new one");
+            return;
+        }
+
+        string libName = ExtractQuotedstring();
+        InstallLibrary(VEnvPath, libName);
     }
     public void SendStringToModel(string s)
     {
@@ -136,8 +180,12 @@ public class AuraManager : MonoBehaviour
                 history += "Aura Response: " + AuraPastMessages[i] + "\n";
             }
         }
-
-       string ContextedText = AuraContext + ExtraContext + AuraContext2 + history + InputHeader + s + InputCloser + Seperator;
+        string ContextedText = "";
+        if (string.IsNullOrEmpty(ExtraContext))
+        {
+             ContextedText = AuraContext + ExtraContext + AuraContext2 + history + InputHeader + s + InputCloser + Seperator;
+        }
+        else  ContextedText = ExtraContext + AuraContext2 + history + InputHeader + s + InputCloser + Seperator;
         //Conversation context = new();
         //context.AddUserInput(AuraContext + ExtraContext + "'");
         //context.AddGeneratedResponse("Yes, I will respond accordingly.");
@@ -189,7 +237,7 @@ public class AuraManager : MonoBehaviour
         try
         {
             // Path to Visual Studio Code executable
-            string vscodePath = @"C:\Program Files\Microsoft VS Code\Code.exe";
+            string vscodePath = @"C:\Users\kohli\AppData\Local\Programs\Microsoft VS Code\Code.exe";
 
             // Start Visual Studio Code with the project folder
             Process.Start(vscodePath, projectPath);
@@ -197,7 +245,7 @@ public class AuraManager : MonoBehaviour
         }
         catch (System.Exception e)
         {
-            UnityEngine.Debug.Log("Error opening Visual Studio Code: " + e.Message);
+            SpawnAuraMessage("Im sorry. I could not open VSCode as requested: " + e.Message);
         }
     }
 
@@ -223,12 +271,22 @@ public class AuraManager : MonoBehaviour
             {
                 process.WaitForExit();
                SpawnAuraMessage("Virtual environment created successfully.");
+                VEnvPath = projectPath;
+                VenvPathInputfield.text = projectPath;
+                hasCreatedVEnv = true;
             }
         }
         catch (System.Exception e)
         {
-            SpawnAuraMessage("Error creating virtual environment: " + e.Message);
+            SpawnAuraMessage("Im sorry. I could not create the virtual environment as requested: " + e.Message);
         }
+    }
+
+    public void OnClearVenvPath()
+    {
+        VenvPathInputfield.text = "";
+        OnEditVenvPath();
+
     }
     public void PlayMusic()
     {
@@ -246,29 +304,85 @@ public class AuraManager : MonoBehaviour
 
     public void CreateNewDocument()
     {
+        string filename = ExtractQuotedstring();
+        if (string.IsNullOrEmpty(ExtractQuotedstring()))
+        {
+            SpawnAuraMessage("No valid filename found.");
+        }
 
+        // Get the desktop path
+        string desktopPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
+
+        // Combine the desktop path with the filename
+        string filePath = Path.Combine(desktopPath, filename);
+
+        // Create the file
+        try
+        {
+            using (FileStream fs = File.Create(filePath))
+            {
+                // Optionally write some content to the file
+                byte[] info = new System.Text.UTF8Encoding(true).GetBytes("This is a sample file.");
+                fs.Write(info, 0, info.Length);
+            }
+            SpawnAuraMessage("Your File has been created successfully and saved to the desktop: " + filePath);
+        }
+        catch (Exception e)
+        {
+            SpawnAuraMessage("Error creating file: " + e.Message);
+        }
     }
 
-    public void CreateNewFolder()
+    public void OnGenerateImageSuccess(Texture2D image)
     {
 
     }
-
     public void GenerateImage()
     {
-
+        HuggingFaceAPI.TextToImage(currentChatString, OnGenerateImageSuccess, OnAuraConversationFailure);
     }
 
-    public void SummarizeDocument()
+    public void OnEditVenvPath()
     {
-
+        hasCreatedVEnv = !string.IsNullOrEmpty(VenvPathInputfield.text);
+        VEnvPath = VenvPathInputfield.text;
     }
 
-    public void FindLinkToOpen()
+    public IEnumerator WriteDelayed(string s, string pythonScriptPath)
     {
-
+        SpawnAuraMessage("Writing your sample python code in main.py!");
+        foreach (char c in s)
+        {
+            using (StreamWriter writer = new StreamWriter(pythonScriptPath))
+            {
+                    writer.Write(c);
+            }
+            yield return new WaitForSeconds(0.04f);
+        }
+        SpawnAuraMessage("Sample Python project created successfully.");
     }
 
+    public void OnCreateSampleProject()
+    {
+        CreateSampleProject(VEnvPath);
+    }
+
+    public void CreateSampleProject(string projectPath)
+    {
+        try
+        {
+            // Create a new Python script file
+            string pythonScriptPath = Path.Combine(projectPath , "main.py");
+
+            StartCoroutine(WriteDelayed(SampleCodes[UnityEngine.Random.Range(0, SampleCodes.Count)], pythonScriptPath));
+
+          
+        }
+        catch (System.Exception e)
+        {
+            SpawnAuraMessage("Error creating sample Python project: " + e.Message);
+        }
+    }
     public void OpenVSCodeAndNewDirectory()
     {
         string projectName = ExtractQuotedstring();
@@ -301,13 +415,60 @@ public class AuraManager : MonoBehaviour
             events[res].Invoke();
         }
     }
+    public void onPackageProject()
+    {
+        PackageProject(VEnvPath);
+    }
+    public void PackageProject(string projectPath)
+    {
+        if (!hasCreatedVEnv)
+        {
+            SpawnAuraMessage("You have not created a virtual environment yet");
+            return;
+        }
+        try
+        {
+            string activatePath = Path.Combine(projectPath, "venv", "Scripts", "activate");
+            string installPyInstallerCommand = $"\"{activatePath}\" && pip install pyinstaller";
+            string pyInstallerCommand = $"\"{activatePath}\" && pyinstaller --onefile main.py"; // Assuming main.py is the entry point
 
+            // Install pyinstaller
+            ProcessStartInfo installStartInfo = new ProcessStartInfo("cmd.exe", "/c " + installPyInstallerCommand)
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using (Process installProcess = Process.Start(installStartInfo))
+            {
+                installProcess.WaitForExit();
+                UnityEngine.Debug.Log("pyinstaller installed successfully.");
+            }
+
+            // Package the project
+            ProcessStartInfo packageStartInfo = new ProcessStartInfo("cmd.exe", "/c " + pyInstallerCommand)
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using (Process packageProcess = Process.Start(packageStartInfo))
+            {
+                packageProcess.WaitForExit();
+                UnityEngine.Debug.Log("Project packaged successfully.");
+            }
+        }
+        catch (System.Exception e)
+        {
+            UnityEngine.Debug.Log("Error packaging project: " + e.Message);
+        }
+    }
     public int returnIndexThatMeetsRequirements()
     {
         int highestIndex = -1; float highest = 0;
         for (int i = 0; i < MatchingIndex.Length; i++)
         {
-            if (MatchingIndex[i] > 0.55f && MatchingIndex[i] > highest)
+            if (MatchingIndex[i] > 0.44f && MatchingIndex[i] > highest)
             {
                 highest = MatchingIndex[i];
                 highestIndex = i;
