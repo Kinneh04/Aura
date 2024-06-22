@@ -6,6 +6,8 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Events;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
+using System.IO;
 public class AuraManager : MonoBehaviour
 {
 
@@ -172,17 +174,62 @@ public class AuraManager : MonoBehaviour
         return "random";
     }
 
-    public string returnQuotedstring()
+    public string ExtractQuotedstring()
     {
         // Regular expression to find text within quotes
-        Match match = Regex.Match(currentChatString, "\"([^\"]*)\"");
+        Match match = Regex.Match(currentChatString, "'([^']*)'");
         if (match.Success)
         {
             return match.Groups[1].Value;
         }
         return null; // No quoted text found
     }
+    public void OpenVisualStudioCode(string projectPath)
+    {
+        try
+        {
+            // Path to Visual Studio Code executable
+            string vscodePath = @"C:\Program Files\Microsoft VS Code\Code.exe";
 
+            // Start Visual Studio Code with the project folder
+            Process.Start(vscodePath, projectPath);
+            UnityEngine.Debug.Log("Visual Studio Code opened successfully.");
+        }
+        catch (System.Exception e)
+        {
+            UnityEngine.Debug.Log("Error opening Visual Studio Code: " + e.Message);
+        }
+    }
+
+    // Function to create a new virtual environment
+    public void CreateVirtualEnvironment(string projectPath)
+    {
+        try
+        {
+            // Create the project directory if it doesn't exist
+            Directory.CreateDirectory(projectPath);
+
+            // Command to create a new virtual environment
+            string command = $"python -m venv {Path.Combine(projectPath, "venv")}";
+
+            // Start a new process to run the command
+            ProcessStartInfo startInfo = new ProcessStartInfo("cmd.exe", "/c " + command)
+            {
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            using (Process process = Process.Start(startInfo))
+            {
+                process.WaitForExit();
+               SpawnAuraMessage("Virtual environment created successfully.");
+            }
+        }
+        catch (System.Exception e)
+        {
+            SpawnAuraMessage("Error creating virtual environment: " + e.Message);
+        }
+    }
     public void PlayMusic()
     {
         string s = returnMatchedGenre();
@@ -192,7 +239,7 @@ public class AuraManager : MonoBehaviour
 
     public void PlayVideo()
     {
-        string s = returnQuotedstring();
+        string s = ExtractQuotedstring();
         Application.OpenURL(youtubeExtension + s);
         SpawnAuraMessage(OpenYoutubeResponse + s);
     }
@@ -222,6 +269,25 @@ public class AuraManager : MonoBehaviour
 
     }
 
+    public void OpenVSCodeAndNewDirectory()
+    {
+        string projectName = ExtractQuotedstring();
+        if (projectName != null)
+        {
+            string projectPath = Path.Combine(System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop), projectName);
+
+            // Create the virtual environment
+            CreateVirtualEnvironment(projectPath);
+
+            // Open Visual Studio Code with the new project folder
+            OpenVisualStudioCode(projectPath);
+        }
+        else
+        {
+            SpawnAuraMessage("Im sorry. I could not find the name of your desired virtual environment in your query. Please specify the name of your venv.");
+        }
+    }
+
     public void onSentenceSimilaritySuccess(float[] f)
     {
         MatchingIndex = f;
@@ -241,7 +307,7 @@ public class AuraManager : MonoBehaviour
         int highestIndex = -1; float highest = 0;
         for (int i = 0; i < MatchingIndex.Length; i++)
         {
-            if (MatchingIndex[i] > 0.6f && MatchingIndex[i] > highest)
+            if (MatchingIndex[i] > 0.55f && MatchingIndex[i] > highest)
             {
                 highest = MatchingIndex[i];
                 highestIndex = i;
@@ -252,6 +318,7 @@ public class AuraManager : MonoBehaviour
 
     public void PassThroughSSModel(string s)
     {
+       
         HuggingFaceAPI.SentenceSimilarity(s, onSentenceSimilaritySuccess, OnAuraConversationFailure, SentenceSimilarities);
         currentChatString = s.ToLower();
     }

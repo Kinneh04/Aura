@@ -2025,6 +2025,8 @@ MonoBehaviour:
   SentenceSimilarities:
   - Play some Music
   - Play youtube video
+  - Find youtube channel
+  - Open Visual Studio Code
   - Create Document
   - Create Folder
   - Generate Image
@@ -2044,11 +2046,53 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 575062278}
+        m_TargetAssemblyTypeName: AuraManager, Assembly-CSharp
+        m_MethodName: PlayVideo
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 575062278}
+        m_TargetAssemblyTypeName: AuraManager, Assembly-CSharp
+        m_MethodName: PlayVideo
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 575062278}
+        m_TargetAssemblyTypeName: AuraManager, Assembly-CSharp
+        m_MethodName: OpenVSCodeAndNewDirectory
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   MatchingIndex: []
   currentChatString: 
   spotifyExtension: https://open.spotify.com/search/
-  OpenMusicResponse: 'Ok. Opening the spofity Webapp and listing playlists for the
-    following category: '
+  OpenMusicResponse: 'Ok. Finding music for the following category: '
+  OpenYoutubeResponse: 'Ok. Searching youtube for the following category: '
   MusicGenres:
   - country
   - rap
@@ -4433,7 +4477,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Your AI Helper
+  m_text: Your AI Buddy
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 91e913216e43a1f4aa77a0903e7616dd, type: 2}
   m_sharedMaterial: {fileID: 7402025514471986828, guid: 91e913216e43a1f4aa77a0903e7616dd, type: 2}
